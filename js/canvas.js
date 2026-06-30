@@ -510,10 +510,9 @@ const HandwritingCanvas = {
     // 如果完全寫在別的地方（位置分 = 0），給 0 分
     if (positionScore === 0) return 0;
 
-    // 綜合：「形狀像不像」為主，「位置對不對」確保不寫到別處
-    // 形狀佔大頭，位置只當門檻（有對到位置就用形狀分，沒對到就低分）
-    const final = shapeScore;
+    // 分數 = 精準模板覆蓋率 × 30
+    const final = shapeScore * 0.3;
 
-    return Math.min(100, Math.round(final));
+    return Math.min(30, Math.round(final));
   }
 };
