@@ -383,7 +383,7 @@ const App = {
       HandwritingCanvas.undo();
     });
 
-    // 確認（計算相似度並儲存進度）
+    // 確認（計算筆順正確率並儲存進度）
     document.getElementById('btn-confirm')?.addEventListener('click', () => {
       const score = HandwritingCanvas.calcSimilarity();
       const resultEl = document.getElementById('similarity-result');
@@ -392,12 +392,12 @@ const App = {
       let stars = '';
       let emoji = '';
       if (score >= 90) { stars = '⭐⭐⭐⭐⭐'; emoji = '🎉'; }
-      else if (score >= 75) { stars = '⭐⭐⭐⭐'; emoji = '😊'; }
-      else if (score >= 60) { stars = '⭐⭐⭐'; emoji = '👍'; }
-      else if (score >= 40) { stars = '⭐⭐'; emoji = '💪'; }
+      else if (score >= 70) { stars = '⭐⭐⭐⭐'; emoji = '😊'; }
+      else if (score >= 50) { stars = '⭐⭐⭐'; emoji = '👍'; }
+      else if (score >= 30) { stars = '⭐⭐'; emoji = '💪'; }
       else { stars = '⭐'; emoji = '📝'; }
 
-      resultEl.innerHTML = `${emoji} 相似度：<strong>${score}%</strong> ${stars}`;
+      resultEl.innerHTML = `${emoji} 正確率：<strong>${score}%</strong> ${stars}`;
       resultEl.className = 'similarity-result show';
 
       // 儲存相似度記錄（最近十次）
@@ -491,7 +491,7 @@ const App = {
       html += '<h3 class="score-history-title">📈 最近練習記錄</h3>';
       html += '<div class="score-list">';
       progress.scores.forEach((s, i) => {
-        const scoreColor = s.score >= 80 ? 'var(--success)' : s.score >= 50 ? 'var(--warning)' : 'var(--danger)';
+        const scoreColor = s.score >= 70 ? 'var(--success)' : s.score >= 40 ? 'var(--warning)' : 'var(--danger)';
         html += `
           <div class="score-item">
             <span class="score-char" style="font-family:var(--font-kai)">${s.char}</span>

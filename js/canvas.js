@@ -35,8 +35,9 @@ const HandwritingCanvas = {
     isDrawing: false,
     lastX: 0,
     lastY: 0,
-    currentStroke: [],
-    pointerType: null,   // 'pen' | 'touch' | 'mouse'
+    currentStroke: [],    // 目前正在畫的筆畫（尚未完成）
+    strokes: [],          // 已完成的筆畫清單（每筆 = [{x,y,pressure,type}, ...]）
+    pointerType: null,    // 'pen' | 'touch' | 'mouse'
     pressure: 0,
     snapshot: null        // 用於 undo
   },
@@ -262,6 +263,9 @@ const HandwritingCanvas = {
       this.state.isDrawing = false;
       this.state.currentStroke.push({ x: this.state.lastX, y: this.state.lastY, pressure: 0, type: 'end' });
 
+      // 儲存完整筆畫（供筆順比對用）
+      this._saveStroke();
+
       // 筆畫完成後儲存狀態，undo 可倒回前一筆
       this._saveSnapshot();
     });
@@ -270,6 +274,7 @@ const HandwritingCanvas = {
     canvas.addEventListener('pointerleave', (e) => {
       if (this.state.isDrawing) {
         this.state.isDrawing = false;
+        this._saveStroke();
         this._saveSnapshot();
       }
     });
@@ -333,6 +338,58 @@ const HandwritingCanvas = {
     }
   },
 
+  /** 將完成的一筆存入筆畫陣列，供筆順正確率比對 */
+  _saveStroke() {
+    if (this.state.currentStroke.length < 2) return; // 忽略太短的筆
+    this.state.strokes.push([...this.state.currentStroke]);
+  },
+
+  /** 分類一筆畫的書寫方向
+   *  0=橫(H) 1=豎(V) 2=撇(L) 3=捺(R) 4=點(D) 5=提(T) 6=鉤(K) 7=折(B) */
+  _classifyStrokeDirection(stroke) {
+    if (stroke.length < 2) return 4; // 點
+
+    const first = stroke[0];
+    const last = stroke[stroke.length - 1];
+    const dx = last.x - first.x;
+    const dy = last.y - first.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+
+    if (len < 8) return 4; // 太短 = 點
+
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI; // -180 ~ 180
+
+    // 偵測折/鉤：筆畫中段有明顯方向轉折
+    if (stroke.length > 6) {
+      const mid = stroke[Math.floor(stroke.length / 2)];
+      const midDx = mid.x - first.x;
+      const midDy = mid.y - first.y;
+      const midLen = Math.sqrt(midDx * midDx + midDy * midDy);
+      if (midLen > 5) {
+        const midAngle = Math.atan2(midDy, midDx) * 180 / Math.PI;
+        const angleDiff = Math.abs(angle - midAngle);
+        // 方向轉折 > 45° 且總長夠 → 折或鉤
+        if (angleDiff > 45 && len > 15) {
+          // 末端回勾 → 鉤
+          const tailDir = Math.abs(angle);
+          if (tailDir > 80 || midLen > len * 0.6) return 7; // 折
+          return 6; // 鉤
+        }
+      }
+    }
+
+    // 簡單方向分類
+    const abs = Math.abs(angle);
+    if (abs < 25 || abs > 155) return 0;          // 橫 (±25° 內接近水平)
+    if (abs > 65 && abs < 115) return 1;           // 豎 (±25° 內接近垂直)
+    if (angle > 110 && angle <= 160) return 2;     // 撇 (左下)
+    if (angle > 20 && angle <= 70) return 3;       // 捺 (右下)
+    if (angle >= -70 && angle < -20) return 5;     // 提 (右上)
+    if (angle >= -110 && angle < -70) return 1;    // 豎 (往上也算豎)
+
+    return 0; // 預設當橫
+  },
+
   // ====== 公開方法 ======
 
   /** 復原上一步 */
@@ -344,6 +401,8 @@ const HandwritingCanvas = {
     ctx.putImageData(data, 0, 0);
     const dpr = window.devicePixelRatio || 1;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // 同步移除最後一筆
+    this.state.strokes.pop();
   },
 
   /** 清除手寫 */
@@ -355,6 +414,8 @@ const HandwritingCanvas = {
     ctx.clearRect(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
     const dpr = window.devicePixelRatio || 1;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // 清除筆畫記錄
+    this.state.strokes = [];
   },
 
   /** 設定新的練習字 */
@@ -363,6 +424,7 @@ const HandwritingCanvas = {
     this._resize();
     this._renderBackground();
     this.clear();
+    this.state.strokes = [];
   },
 
   /** 設定練習模式 */
@@ -412,107 +474,53 @@ const HandwritingCanvas = {
     this.config.undoStack = [];
   },
 
-  /** 計算相似度：雙模板比對 — 形狀精準度為主，位置寬容為輔，不扣偏移分 */
+  /** 計算筆順正確率：比對小朋友的筆畫順序是否按正確筆順書寫 */
   calcSimilarity() {
-    if (!this.config.templateChar || !this.elements.drawCanvas || !this.elements.mainCanvas) return 0;
+    return this.calcStrokeAccuracy();
+  },
 
-    const dpr = window.devicePixelRatio || 1;
-    const size = this.config.cellSize;
-    const margin = 20;
-    const center = margin + size / 2;
-    const ch = this.config.templateChar.char;
-    const baseSize = size * 0.65;
-    const fontStr = (s) => `${s}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
+  /** 計算筆順正確率 */
+  calcStrokeAccuracy() {
+    if (!this.config.templateChar) return 0;
+    const charData = this.config.templateChar;
+    const userStrokes = this.state.strokes;
 
-    const drawCtx = this.elements.drawCanvas.getContext('2d');
-    const drawData = drawCtx.getImageData(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
-    const drawPixels = drawData.data;
+    // 沒寫任何筆 → 0%
+    if (userStrokes.length === 0) return 0;
 
-    // ---- 精準模板（形狀）：1.0x + 2px 偏移 — 用來判斷筆順形狀是否正確 ----
-    function buildThinTmpl() {
-      const c = document.createElement('canvas');
-      c.width = drawData.width;
-      c.height = drawData.height;
-      const ctx = c.getContext('2d');
-      ctx.scale(dpr, dpr);
-      ctx.fillStyle = '#000';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = fontStr(baseSize);
-      ctx.fillText(ch, center, center);
-      // 微膨脹 3px 給一點位置容錯，但仍要求形狀正確
-      for (let r = 1; r <= 3; r++) {
-        for (let dx = -r; dx <= r; dx++) {
-          for (let dy = -r; dy <= r; dy++) {
-            if (dx === 0 && dy === 0) continue;
-            ctx.fillText(ch, center + dx, center + dy);
-          }
-        }
-      }
-      return ctx.getImageData(0, 0, c.width, c.height).data;
+    // 取得標準筆順方向
+    const expectedOrder = charData.strokeOrder || [];
+    const expectedCount = charData.strokes || 1;
+
+    // 小朋友寫的筆畫數量比對
+    const userCount = userStrokes.length;
+
+    // 分類每一筆的方向
+    const userDirections = userStrokes.map(s => this._classifyStrokeDirection(s));
+
+    // 計算方向匹配率：逐一比對每筆方向
+    let dirMatches = 0;
+    const compareLen = Math.min(userDirections.length, expectedOrder.length);
+    for (let i = 0; i < compareLen; i++) {
+      if (userDirections[i] === expectedOrder[i]) dirMatches++;
     }
 
-    // ---- 寬鬆模板（位置）：1.3x + 6px 偏移 — 確保偏一點不扣分 ----
-    function buildFatTmpl() {
-      const c = document.createElement('canvas');
-      c.width = drawData.width;
-      c.height = drawData.height;
-      const ctx = c.getContext('2d');
-      ctx.scale(dpr, dpr);
-      ctx.fillStyle = '#000';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = fontStr(baseSize);
-      ctx.fillText(ch, center, center);
-      ctx.font = fontStr(baseSize * 1.15);
-      ctx.fillText(ch, center, center);
-      ctx.font = fontStr(baseSize * 1.3);
-      ctx.fillText(ch, center, center);
-      for (let r = 1; r <= 6; r++) {
-        for (let dx = -r; dx <= r; dx++) {
-          for (let dy = -r; dy <= r; dy++) {
-            if (dx === 0 && dy === 0) continue;
-            ctx.font = fontStr(baseSize);
-            ctx.fillText(ch, center + dx, center + dy);
-          }
-        }
-      }
-      return ctx.getImageData(0, 0, c.width, c.height).data;
-    }
+    // 筆數正確率（筆數差太多扣分）
+    const countDiff = Math.abs(userCount - expectedCount);
+    let countScore;
+    if (countDiff === 0) countScore = 1.0;
+    else if (countDiff === 1) countScore = 0.8;
+    else if (countDiff === 2) countScore = 0.6;
+    else countScore = 0.4;
 
-    const thinPixels = buildThinTmpl();
-    const fatPixels = buildFatTmpl();
+    // 方向正確率
+    const dirScore = expectedOrder.length > 0
+      ? dirMatches / expectedOrder.length
+      : (userCount >= expectedCount ? 1.0 : 0.5); // 無筆順資料時只看筆數
 
-    // 計算兩個覆蓋率
-    let thinCovered = 0, thinTotal = 0;
-    let fatCovered = 0, fatTotal = 0;
+    // 綜合正確率 = 方向 60% + 筆數 40%
+    const accuracy = (dirScore * 0.6 + countScore * 0.4) * 100;
 
-    for (let i = 3; i < drawPixels.length; i += 4) {
-      const drawn = drawPixels[i] > 15;
-      if (thinPixels[i] > 15) {
-        thinTotal++;
-        if (drawn) thinCovered++;
-      }
-      if (fatPixels[i] > 15) {
-        fatTotal++;
-        if (drawn) fatCovered++;
-      }
-    }
-
-    if (fatTotal === 0) return 0;
-
-    // 形狀分 = 精準模板覆蓋率（你寫得像不像這個字）
-    const shapeScore = thinTotal > 0 ? (thinCovered / thinTotal) * 100 : 0;
-
-    // 位置分 = 寬鬆模板覆蓋率（你寫在對的地方嗎）
-    const positionScore = (fatCovered / fatTotal) * 100;
-
-    // 如果完全寫在別的地方（位置分 = 0），給 0 分
-    if (positionScore === 0) return 0;
-
-    // 分數 = 精準模板覆蓋率 × 30
-    const final = shapeScore * 0.3;
-
-    return Math.min(100, Math.round(final));
-  }
+    return Math.min(100, Math.round(accuracy));
+  },
 };

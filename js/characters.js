@@ -293,156 +293,156 @@ const CharacterData = {
           id: 'G4S1L1',
           title: '第一課 水陸小高手',
           chars: [
-            { char: '煩', zhuyin: 'ㄈㄢˊ', radical: '火', strokes: 13, desc: '（略）' },
-            { char: '躍', zhuyin: 'ㄩㄝˋ', radical: '足', strokes: 21, desc: '（略）' },
-            { char: '轉', zhuyin: 'ㄓㄨㄢˇ', radical: '車', strokes: 11, desc: '（略）' },
-            { char: '螺', zhuyin: 'ㄌㄨㄛˊ', radical: '虫', strokes: 17, desc: '（略）' },
-            { char: '陀', zhuyin: 'ㄊㄨㄛˊ', radical: '阜', strokes: 8, desc: '（略）' },
-            { char: '緩', zhuyin: 'ㄏㄨㄢˇ', radical: '糸', strokes: 15, desc: '（略）' },
-            { char: '邀', zhuyin: 'ㄧㄠ', radical: '辵', strokes: 15, desc: '（略）' }
+            { char: '煩', zhuyin: 'ㄈㄢˊ', radical: '火', strokes: 13, desc: '（略）', strokeOrder: [4,2,2,4,0,2,1,7,1,7,0,2,4] },
+            { char: '躍', zhuyin: 'ㄩㄝˋ', radical: '足', strokes: 21, desc: '（略）', strokeOrder: [1,7,0,1,0,1,5,2,7,4,2,1,4,0,0,0,1,0,0,2,3] },
+            { char: '轉', zhuyin: 'ㄓㄨㄢˇ', radical: '車', strokes: 11, desc: '（略）', strokeOrder: [0,7,0,1,0,7,0,1,0,1,4] },
+            { char: '螺', zhuyin: 'ㄌㄨㄛˊ', radical: '虫', strokes: 17, desc: '（略）', strokeOrder: [1,7,0,1,0,4,1,7,0,0,0,7,7,4,1,2,3] },
+            { char: '陀', zhuyin: 'ㄊㄨㄛˊ', radical: '阜', strokes: 8, desc: '（略）', strokeOrder: [7,1,2,7,1,7,2,3] },
+            { char: '緩', zhuyin: 'ㄏㄨㄢˇ', radical: '糸', strokes: 15, desc: '（略）', strokeOrder: [7,7,4,4,4,2,4,4,2,0,0,2,0,7,3] },
+            { char: '邀', zhuyin: 'ㄧㄠ', radical: '辵', strokes: 15, desc: '（略）', strokeOrder: [2,1,7,0,0,4,0,7,2,2,2,2,3,4,3] }
           ]
         },
         {
           id: 'G4S1L2',
           title: '第二課 放學後',
           chars: [
-            { char: '幸', zhuyin: 'ㄒㄧㄥˋ', radical: '干', strokes: 8, desc: '（略）' },
-            { char: '暫', zhuyin: 'ㄗㄢˋ', radical: '日', strokes: 15, desc: '（略）' },
-            { char: '束', zhuyin: 'ㄕㄨˋ', radical: '木', strokes: 7, desc: '（略）' },
-            { char: '捨', zhuyin: 'ㄕㄜˇ', radical: '手', strokes: 11, desc: '（略）' },
-            { char: '依', zhuyin: 'ㄧ', radical: '人', strokes: 8, desc: '（略）' },
-            { char: '繩', zhuyin: 'ㄕㄥˋ', radical: '糸', strokes: 19, desc: '（略）' },
-            { char: '則', zhuyin: 'ㄗㄜˊ', radical: '刀', strokes: 9, desc: '（略）' }
+            { char: '幸', zhuyin: 'ㄒㄧㄥˋ', radical: '干', strokes: 8, desc: '（略）', strokeOrder: [0,1,0,4,2,0,0,1] },
+            { char: '暫', zhuyin: 'ㄗㄢˋ', radical: '日', strokes: 15, desc: '（略）', strokeOrder: [0,7,0,1,5,2,0,1,0,0,2,2,0,1,0] },
+            { char: '束', zhuyin: 'ㄕㄨˋ', radical: '木', strokes: 7, desc: '（略）', strokeOrder: [0,1,7,0,1,2,3] },
+            { char: '捨', zhuyin: 'ㄕㄜˇ', radical: '手', strokes: 11, desc: '（略）', strokeOrder: [0,6,5,2,3,0,1,0,2,1,7] },
+            { char: '依', zhuyin: 'ㄧ', radical: '人', strokes: 8, desc: '（略）', strokeOrder: [2,1,4,0,2,7,6,3] },
+            { char: '繩', zhuyin: 'ㄕㄥˋ', radical: '糸', strokes: 19, desc: '（略）', strokeOrder: [7,7,4,4,4,1,7,0,0,7,0,1,0,1,0,0,0,3,0] },
+            { char: '則', zhuyin: 'ㄗㄜˊ', radical: '刀', strokes: 9, desc: '（略）', strokeOrder: [1,7,0,0,0,2,4,1,6] }
           ]
         },
         {
           id: 'G4S1L3',
           title: '第三課 我的籃球夢',
           chars: [
-            { char: '弧', zhuyin: 'ㄍㄨˊ', radical: '弓', strokes: 8, desc: '（略）' },
-            { char: '優', zhuyin: 'ㄧㄡ', radical: '人', strokes: 17, desc: '（略）' },
-            { char: '喧', zhuyin: 'ㄒㄩㄢ', radical: '口', strokes: 12, desc: '（略）' },
-            { char: '秒', zhuyin: 'ㄇㄧㄠˇ', radical: '禾', strokes: 9, desc: '（略）' },
-            { char: '彼', zhuyin: 'ㄅㄧˇ', radical: '彳', strokes: 8, desc: '（略）' },
-            { char: '揮', zhuyin: 'ㄏㄟ', radical: '手', strokes: 12, desc: '（略）' },
-            { char: '曾', zhuyin: 'ㄘㄥˊ', radical: '曰', strokes: 12, desc: '（略）' }
+            { char: '弧', zhuyin: 'ㄍㄨˊ', radical: '弓', strokes: 8, desc: '（略）', strokeOrder: [7,0,7,6,2,2,7,6,3] },
+            { char: '優', zhuyin: 'ㄧㄡ', radical: '人', strokes: 17, desc: '（略）', strokeOrder: [2,1,0,2,7,4,4,4,7,2,7,4,4,2,7,3,0] },
+            { char: '喧', zhuyin: 'ㄒㄩㄢ', radical: '口', strokes: 12, desc: '（略）', strokeOrder: [1,7,0,4,4,0,7,0,1,7,0,0] },
+            { char: '秒', zhuyin: 'ㄇㄧㄠˇ', radical: '禾', strokes: 9, desc: '（略）', strokeOrder: [2,0,1,2,4,1,2,0,2] },
+            { char: '彼', zhuyin: 'ㄅㄧˇ', radical: '彳', strokes: 8, desc: '（略）', strokeOrder: [2,2,1,7,2,1,7,3] },
+            { char: '揮', zhuyin: 'ㄏㄟ', radical: '手', strokes: 12, desc: '（略）', strokeOrder: [0,6,5,4,0,7,1,0,0,0,0,1] },
+            { char: '曾', zhuyin: 'ㄘㄥˊ', radical: '曰', strokes: 12, desc: '（略）', strokeOrder: [4,2,1,7,0,1,1,7,0,0,1,0] }
           ]
         },
         {
           id: 'G4S1L4',
           title: '第四課 永遠的馬偕',
           chars: [
-            { char: '濃', zhuyin: 'ㄋㄨㄥˊ', radical: '水', strokes: 16, desc: '（略）' },
-            { char: '堂', zhuyin: 'ㄊㄤˊ', radical: '土', strokes: 11, desc: '（略）' },
-            { char: '宿', zhuyin: 'ㄙㄨˋ', radical: '宀', strokes: 11, desc: '（略）' },
-            { char: '捐', zhuyin: 'ㄐㄩㄢ', radical: '手', strokes: 10, desc: '（略）' },
-            { char: '嶺', zhuyin: 'ㄌㄧㄥˇ', radical: '山', strokes: 17, desc: '（略）' },
-            { char: '翻', zhuyin: 'ㄈㄢ', radical: '羽', strokes: 18, desc: '（略）' },
-            { char: '治', zhuyin: 'ㄓˋ', radical: '水', strokes: 8, desc: '（略）' }
+            { char: '濃', zhuyin: 'ㄋㄨㄥˊ', radical: '水', strokes: 16, desc: '（略）', strokeOrder: [4,4,5,1,7,0,0,1,0,2,0,0,1,5,2,3] },
+            { char: '堂', zhuyin: 'ㄊㄤˊ', radical: '土', strokes: 11, desc: '（略）', strokeOrder: [1,4,2,4,7,0,1,7,0,0,1] },
+            { char: '宿', zhuyin: 'ㄙㄨˋ', radical: '宀', strokes: 11, desc: '（略）', strokeOrder: [4,4,7,2,1,2,1,7,0,0,0] },
+            { char: '捐', zhuyin: 'ㄐㄩㄢ', radical: '手', strokes: 10, desc: '（略）', strokeOrder: [0,6,5,1,7,0,0,1,7,0] },
+            { char: '嶺', zhuyin: 'ㄌㄧㄥˇ', radical: '山', strokes: 17, desc: '（略）', strokeOrder: [1,7,1,2,3,4,2,0,7,1,7,2,2,2,4,7,3] },
+            { char: '翻', zhuyin: 'ㄈㄢ', radical: '羽', strokes: 18, desc: '（略）', strokeOrder: [2,4,7,0,1,0,1,7,0,0,7,4,5,7,4,5,7,0] },
+            { char: '治', zhuyin: 'ㄓˋ', radical: '水', strokes: 8, desc: '（略）', strokeOrder: [4,4,5,7,4,1,7,0] }
           ]
         },
         {
           id: 'G4S1L5',
           title: '第五課 假如給我三天光明',
           chars: [
-            { char: '盡', zhuyin: 'ㄐㄧㄣˋ', radical: '皿', strokes: 14, desc: '（略）' },
-            { char: '續', zhuyin: 'ㄒㄩˋ', radical: '糸', strokes: 20, desc: '（略）' },
-            { char: '適', zhuyin: 'ㄕˋ', radical: '辵', strokes: 15, desc: '（略）' },
-            { char: '毯', zhuyin: 'ㄊㄢˇ', radical: '毛', strokes: 12, desc: '（略）' },
-            { char: '何', zhuyin: 'ㄏㄜˊ', radical: '人', strokes: 7, desc: '（略）' },
-            { char: '蕾', zhuyin: 'ㄌㄟˇ', radical: '艸', strokes: 17, desc: '（略）' },
-            { char: '蓓', zhuyin: 'ㄅㄟˋ', radical: '艸', strokes: 14, desc: '（略）' }
+            { char: '盡', zhuyin: 'ㄐㄧㄣˋ', radical: '皿', strokes: 14, desc: '（略）', strokeOrder: [7,0,0,0,1,4,4,4,4,1,7,1,0,0] },
+            { char: '續', zhuyin: 'ㄒㄩˋ', radical: '糸', strokes: 20, desc: '（略）', strokeOrder: [7,7,4,4,4,0,1,0,0,1,7,0,0,0,2,4,0,7,2,3] },
+            { char: '適', zhuyin: 'ㄕˋ', radical: '辵', strokes: 15, desc: '（略）', strokeOrder: [4,0,0,4,2,1,7,0,0,1,7,0,4,2,3] },
+            { char: '毯', zhuyin: 'ㄊㄢˇ', radical: '毛', strokes: 12, desc: '（略）', strokeOrder: [2,0,0,6,4,2,2,4,4,0,2,4] },
+            { char: '何', zhuyin: 'ㄏㄜˊ', radical: '人', strokes: 7, desc: '（略）', strokeOrder: [2,1,0,1,7,0,6] },
+            { char: '蕾', zhuyin: 'ㄌㄟˇ', radical: '艸', strokes: 17, desc: '（略）', strokeOrder: [0,1,1,4,7,0,1,7,0,0,1,0,4,2,4,7,0] },
+            { char: '蓓', zhuyin: 'ㄅㄟˋ', radical: '艸', strokes: 14, desc: '（略）', strokeOrder: [0,1,1,4,0,4,2,0,1,7,0,0,1,7] }
           ]
         },
         {
           id: 'G4S1L6',
           title: '第六課 攀登生命的高峰',
           chars: [
-            { char: '響', zhuyin: 'ㄒㄧㄤˇ', radical: '音', strokes: 21, desc: '（略）' },
-            { char: '谷', zhuyin: 'ㄍㄨˇ', radical: '谷', strokes: 7, desc: '（略）' },
-            { char: '訓', zhuyin: 'ㄒㄩㄣˋ', radical: '言', strokes: 10, desc: '（略）' },
-            { char: '氣', zhuyin: 'ㄑㄧˋ', radical: '氣', strokes: 10, desc: '（略）' },
-            { char: '攀', zhuyin: 'ㄆㄢ', radical: '手', strokes: 19, desc: '（略）' },
-            { char: '磨', zhuyin: 'ㄇㄛˋ', radical: '石', strokes: 16, desc: '（略）' },
-            { char: '酷', zhuyin: 'ㄎㄨˋ', radical: '酉', strokes: 14, desc: '（略）' }
+            { char: '響', zhuyin: 'ㄒㄧㄤˇ', radical: '音', strokes: 21, desc: '（略）', strokeOrder: [2,2,4,4,7,0,1,7,0,0,7,7,4,2,7,1,7,0,0,1,4] },
+            { char: '谷', zhuyin: 'ㄍㄨˇ', radical: '谷', strokes: 7, desc: '（略）', strokeOrder: [2,4,2,3,1,7,0] },
+            { char: '訓', zhuyin: 'ㄒㄩㄣˋ', radical: '言', strokes: 10, desc: '（略）', strokeOrder: [4,0,0,0,1,7,0,2,1,1] },
+            { char: '氣', zhuyin: 'ㄑㄧˋ', radical: '氣', strokes: 10, desc: '（略）', strokeOrder: [2,0,0,7,2,0,0,7,2,3] },
+            { char: '攀', zhuyin: 'ㄆㄢ', radical: '手', strokes: 19, desc: '（略）', strokeOrder: [0,2,0,7,0,2,2,3,0,7,2,0,2,0,7,0,2,6,0] },
+            { char: '磨', zhuyin: 'ㄇㄛˋ', radical: '石', strokes: 16, desc: '（略）', strokeOrder: [4,0,2,0,1,2,3,0,7,0,7,2,0,0,1,0] },
+            { char: '酷', zhuyin: 'ㄎㄨˋ', radical: '酉', strokes: 14, desc: '（略）', strokeOrder: [0,1,7,2,7,2,2,0,2,0,1,7,0,0] }
           ]
         },
         {
           id: 'G4S1L7',
           title: '第七課 美味的一堂課',
           chars: [
-            { char: '未', zhuyin: 'ㄨㄟˋ', radical: '木', strokes: 5, desc: '（略）' },
-            { char: '醋', zhuyin: 'ㄘㄨˋ', radical: '酉', strokes: 15, desc: '（略）' },
-            { char: '壽', zhuyin: 'ㄕㄡˋ', radical: '士', strokes: 14, desc: '（略）' },
-            { char: '郁', zhuyin: 'ㄩˋ', radical: '邑', strokes: 9, desc: '（略）' },
-            { char: '麵', zhuyin: 'ㄇㄧㄢˋ', radical: '麥', strokes: 20, desc: '（略）' },
-            { char: '義', zhuyin: 'ㄧˋ', radical: '羊', strokes: 13, desc: '（略）' },
-            { char: '醬', zhuyin: 'ㄐㄧㄤˋ', radical: '酉', strokes: 18, desc: '（略）' }
+            { char: '未', zhuyin: 'ㄨㄟˋ', radical: '木', strokes: 5, desc: '（略）', strokeOrder: [0,0,1,2,3] },
+            { char: '醋', zhuyin: 'ㄘㄨˋ', radical: '酉', strokes: 15, desc: '（略）', strokeOrder: [0,1,7,2,7,2,2,0,0,1,1,0,1,7,0] },
+            { char: '壽', zhuyin: 'ㄕㄡˋ', radical: '士', strokes: 14, desc: '（略）', strokeOrder: [0,0,0,1,2,3,0,7,0,0,1,6,4,4] },
+            { char: '郁', zhuyin: 'ㄩˋ', radical: '邑', strokes: 9, desc: '（略）', strokeOrder: [0,2,1,7,0,7,2,1,6] },
+            { char: '麵', zhuyin: 'ㄇㄧㄢˋ', radical: '麥', strokes: 20, desc: '（略）', strokeOrder: [0,0,1,2,3,2,4,2,2,7,2,2,0,1,7,0,1,1,0,0] },
+            { char: '義', zhuyin: 'ㄧˋ', radical: '羊', strokes: 13, desc: '（略）', strokeOrder: [4,2,0,0,0,1,0,0,2,7,2,2,3] },
+            { char: '醬', zhuyin: 'ㄐㄧㄤˋ', radical: '酉', strokes: 18, desc: '（略）', strokeOrder: [1,4,7,0,2,0,1,7,0,0,7,2,4,0,2,0,7,0] }
           ]
         },
         {
           id: 'G4S1L8',
           title: '第八課 建築界的長頸鹿',
           chars: [
-            { char: '橋', zhuyin: 'ㄑㄧㄠˊ', radical: '木', strokes: 16, desc: '（略）' },
-            { char: '吉', zhuyin: 'ㄐㄧˊ', radical: '口', strokes: 6, desc: '（略）' },
-            { char: '訊', zhuyin: 'ㄒㄩㄣˋ', radical: '言', strokes: 10, desc: '（略）' },
-            { char: '塔', zhuyin: 'ㄊㄚˇ', radical: '土', strokes: 13, desc: '（略）' },
-            { char: '晴', zhuyin: 'ㄑㄧㄥˊ', radical: '日', strokes: 12, desc: '（略）' },
-            { char: '京', zhuyin: 'ㄐㄧㄥ', radical: '亠', strokes: 8, desc: '（略）' },
-            { char: '震', zhuyin: 'ㄓㄥˋ', radical: '雨', strokes: 15, desc: '（略）' }
+            { char: '橋', zhuyin: 'ㄑㄧㄠˊ', radical: '木', strokes: 16, desc: '（略）', strokeOrder: [0,1,2,3,2,0,0,2,3,1,7,0,0,1,7,0] },
+            { char: '吉', zhuyin: 'ㄐㄧˊ', radical: '口', strokes: 6, desc: '（略）', strokeOrder: [0,1,0,1,7,0] },
+            { char: '訊', zhuyin: 'ㄒㄩㄣˋ', radical: '言', strokes: 10, desc: '（略）', strokeOrder: [4,0,0,0,2,7,6,1,7,0] },
+            { char: '塔', zhuyin: 'ㄊㄚˇ', radical: '土', strokes: 13, desc: '（略）', strokeOrder: [0,1,0,0,1,1,2,3,0,1,7,0,0] },
+            { char: '晴', zhuyin: 'ㄑㄧㄥˊ', radical: '日', strokes: 12, desc: '（略）', strokeOrder: [1,7,0,0,0,0,1,0,1,7,0,0] },
+            { char: '京', zhuyin: 'ㄐㄧㄥ', radical: '亠', strokes: 8, desc: '（略）', strokeOrder: [4,0,1,7,0,1,6,4] },
+            { char: '震', zhuyin: 'ㄓㄥˋ', radical: '雨', strokes: 15, desc: '（略）', strokeOrder: [0,4,7,1,4,4,4,4,0,2,0,0,1,5,3] }
           ]
         },
         {
           id: 'G4S1L9',
           title: '第九課 請到我的家鄉來',
           chars: [
-            { char: '劃', zhuyin: 'ㄏㄨㄚˋ', radical: '刀', strokes: 6, desc: '（略）' },
-            { char: '鬱', zhuyin: 'ㄩˋ', radical: '山', strokes: 29, desc: '（略）' },
-            { char: '潮', zhuyin: 'ㄔㄠˊ', radical: '水', strokes: 15, desc: '（略）' },
-            { char: '防', zhuyin: 'ㄈㄤˊ', radical: '阜', strokes: 7, desc: '（略）' },
-            { char: '堤', zhuyin: 'ㄊㄧ', radical: '土', strokes: 12, desc: '（略）' },
-            { char: '窯', zhuyin: 'ㄧㄠˊ', radical: '穴', strokes: 14, desc: '（略）' },
-            { char: '勢', zhuyin: 'ㄕˋ', radical: '力', strokes: 13, desc: '（略）' }
+            { char: '劃', zhuyin: 'ㄏㄨㄚˋ', radical: '刀', strokes: 6, desc: '（略）', strokeOrder: [0,0,7,1,1,6] },
+            { char: '鬱', zhuyin: 'ㄩˋ', radical: '山', strokes: 29, desc: '（略）', strokeOrder: [0,1,2,0,4,4,7,4,4,2,4,0,7,0,0,7,0,0,2,3,2,4,4,4,0,1,2,2,3] },
+            { char: '潮', zhuyin: 'ㄔㄠˊ', radical: '水', strokes: 15, desc: '（略）', strokeOrder: [4,4,5,0,1,7,0,0,0,1,0,1,7,0,0] },
+            { char: '防', zhuyin: 'ㄈㄤˊ', radical: '阜', strokes: 7, desc: '（略）', strokeOrder: [7,1,4,0,2,7,2] },
+            { char: '堤', zhuyin: 'ㄊㄧ', radical: '土', strokes: 12, desc: '（略）', strokeOrder: [0,1,0,1,7,0,0,0,0,1,5,3] },
+            { char: '窯', zhuyin: 'ㄧㄠˊ', radical: '穴', strokes: 14, desc: '（略）', strokeOrder: [4,4,7,2,4,0,0,2,0,1,1,7,0,1] },
+            { char: '勢', zhuyin: 'ㄕˋ', radical: '力', strokes: 13, desc: '（略）', strokeOrder: [0,1,0,5,2,7,6,0,7,2,3,0,6] }
           ]
         },
         {
           id: 'G4S1L10',
           title: '第十課 奇幻旋律',
           chars: [
-            { char: '遍', zhuyin: 'ㄅㄧㄢˋ', radical: '辵', strokes: 13, desc: '（略）' },
-            { char: '富', zhuyin: 'ㄈㄨˋ', radical: '宀', strokes: 12, desc: '（略）' },
-            { char: '榮', zhuyin: 'ㄖㄥˊ', radical: '木', strokes: 14, desc: '（略）' },
-            { char: '搓', zhuyin: 'ㄘㄨㄛ', radical: '手', strokes: 13, desc: '（略）' },
-            { char: '龐', zhuyin: 'ㄆㄤˊ', radical: '广', strokes: 19, desc: '（略）' },
-            { char: '困', zhuyin: 'ㄎㄨㄣˋ', radical: '囗', strokes: 7, desc: '（略）' },
-            { char: '邁', zhuyin: 'ㄇㄞˋ', radical: '辵', strokes: 17, desc: '（略）' }
+            { char: '遍', zhuyin: 'ㄅㄧㄢˋ', radical: '辵', strokes: 13, desc: '（略）', strokeOrder: [4,0,7,2,1,7,0,0,1,7,0,4,3] },
+            { char: '富', zhuyin: 'ㄈㄨˋ', radical: '宀', strokes: 12, desc: '（略）', strokeOrder: [4,4,7,0,1,7,0,1,7,0,0,0] },
+            { char: '榮', zhuyin: 'ㄖㄥˊ', radical: '木', strokes: 14, desc: '（略）', strokeOrder: [4,4,4,7,2,4,0,0,0,1,7,0,0,1] },
+            { char: '搓', zhuyin: 'ㄘㄨㄛ', radical: '手', strokes: 13, desc: '（略）', strokeOrder: [0,6,5,4,2,0,0,0,1,0,2,0,0] },
+            { char: '龐', zhuyin: 'ㄆㄤˊ', radical: '广', strokes: 19, desc: '（略）', strokeOrder: [4,0,2,1,0,0,1,7,0,0,2,7,6,4,4,4,2,7,0] },
+            { char: '困', zhuyin: 'ㄎㄨㄣˋ', radical: '囗', strokes: 7, desc: '（略）', strokeOrder: [1,7,0,2,0,1,0] },
+            { char: '邁', zhuyin: 'ㄇㄞˋ', radical: '辵', strokes: 17, desc: '（略）', strokeOrder: [0,1,1,2,7,2,2,3,1,7,0,1,0,0,2,4,3] }
           ]
         },
         {
           id: 'G4S1L11',
           title: '第十一課 兔子先生等等我',
           chars: [
-            { char: '遲', zhuyin: 'ㄔˊ', radical: '辵', strokes: 16, desc: '（略）' },
-            { char: '扇', zhuyin: 'ㄕㄢˋ', radical: '户', strokes: 10, desc: '（略）' },
-            { char: '盒', zhuyin: 'ㄏㄜˊ', radical: '皿', strokes: 11, desc: '（略）' },
-            { char: '哭', zhuyin: 'ㄎㄨ', radical: '口', strokes: 10, desc: '（略）' },
-            { char: '袋', zhuyin: 'ㄉㄞˋ', radical: '衣', strokes: 11, desc: '（略）' },
-            { char: '迫', zhuyin: 'ㄆㄛˋ', radical: '辵', strokes: 9, desc: '（略）' },
-            { char: '示', zhuyin: 'ㄕˋ', radical: '示', strokes: 5, desc: '（略）' }
+            { char: '遲', zhuyin: 'ㄔˊ', radical: '辵', strokes: 16, desc: '（略）', strokeOrder: [7,0,2,0,0,2,4,0,1,7,0,0,0,1,5,3] },
+            { char: '扇', zhuyin: 'ㄕㄢˋ', radical: '户', strokes: 10, desc: '（略）', strokeOrder: [4,7,0,2,7,4,5,7,4,5] },
+            { char: '盒', zhuyin: 'ㄏㄜˊ', radical: '皿', strokes: 11, desc: '（略）', strokeOrder: [2,3,0,1,1,7,0,0,2,2,0] },
+            { char: '哭', zhuyin: 'ㄎㄨ', radical: '口', strokes: 10, desc: '（略）', strokeOrder: [1,7,0,1,7,0,0,2,3,4] },
+            { char: '袋', zhuyin: 'ㄉㄞˋ', radical: '衣', strokes: 11, desc: '（略）', strokeOrder: [2,1,2,4,0,7,2,6,2,7,3] },
+            { char: '迫', zhuyin: 'ㄆㄛˋ', radical: '辵', strokes: 9, desc: '（略）', strokeOrder: [2,1,7,0,0,4,2,3,4] },
+            { char: '示', zhuyin: 'ㄕˋ', radical: '示', strokes: 5, desc: '（略）', strokeOrder: [0,0,1,6,4] }
           ]
         },
         {
           id: 'G4S1L12',
           title: '第十二課 老鞋匠和小精靈',
           chars: [
-            { char: '內', zhuyin: 'ㄋㄟˋ', radical: '入', strokes: 4, desc: '（略）' },
-            { char: '蹦', zhuyin: 'ㄅㄥˋ', radical: '足', strokes: 18, desc: '（略）' },
-            { char: '踊', zhuyin: 'ㄩㄥˇ', radical: '足', strokes: 17, desc: '（略）' },
-            { char: '足', zhuyin: 'ㄗㄨˊ', radical: '足', strokes: 7, desc: '（略）' },
-            { char: '噴', zhuyin: 'ㄆㄣ', radical: '口', strokes: 14, desc: '（略）' },
-            { char: '鎧', zhuyin: 'ㄎㄟˇ', radical: '金', strokes: 18, desc: '（略）' },
-            { char: '靈', zhuyin: 'ㄌㄧㄥˊ', radical: '雨', strokes: 24, desc: '（略）' }
+            { char: '內', zhuyin: 'ㄋㄟˋ', radical: '入', strokes: 4, desc: '（略）', strokeOrder: [1,7,2,3] },
+            { char: '蹦', zhuyin: 'ㄅㄥˋ', radical: '足', strokes: 18, desc: '（略）', strokeOrder: [1,7,0,1,0,5,2,1,7,1,7,2,2,1,7,2,0,7] },
+            { char: '踊', zhuyin: 'ㄩㄥˇ', radical: '足', strokes: 17, desc: '（略）', strokeOrder: [1,7,0,1,0,5,2,6,4,7,0,0,1,7,0,6,0] },
+            { char: '足', zhuyin: 'ㄗㄨˊ', radical: '足', strokes: 7, desc: '（略）', strokeOrder: [1,7,0,1,0,2,3] },
+            { char: '噴', zhuyin: 'ㄆㄣ', radical: '口', strokes: 14, desc: '（略）', strokeOrder: [1,7,0,0,1,0,0,1,7,0,0,0,2,3] },
+            { char: '鎧', zhuyin: 'ㄎㄟˇ', radical: '金', strokes: 18, desc: '（略）', strokeOrder: [2,3,0,0,1,4,2,5,1,7,1,2,7,6,4,4,4,0] },
+            { char: '靈', zhuyin: 'ㄌㄧㄥˊ', radical: '雨', strokes: 24, desc: '（略）', strokeOrder: [0,4,7,1,4,4,4,4,1,7,0,1,7,0,0,2,2,4,0,2,4,2,4,2] }
           ]
         }
       ]},
