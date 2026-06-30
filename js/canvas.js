@@ -231,10 +231,7 @@ const HandwritingCanvas = {
       this.state.pointerType = e.pointerType;
       this.state.pressure = e.pressure || 0.5;
 
-      // 儲存當前狀態用於 undo
-      this._saveSnapshot();
-
-      // 開始新筆劃
+      // 開始新筆劃（snapshot 改到 pointerup 存，避免下筆瞬間 getImageData 卡頓）
       this.state.currentStroke = [];
 
       const pos = this._getCanvasPos(e);
@@ -259,17 +256,21 @@ const HandwritingCanvas = {
       this.state.lastY = pos.y;
     });
 
-    // pointerup - 結束畫
+    // pointerup - 結束畫（存 snapshot 供 undo）
     canvas.addEventListener('pointerup', (e) => {
       if (!this.state.isDrawing) return;
       this.state.isDrawing = false;
       this.state.currentStroke.push({ x: this.state.lastX, y: this.state.lastY, pressure: 0, type: 'end' });
+
+      // 筆畫完成後儲存狀態，undo 可倒回前一筆
+      this._saveSnapshot();
     });
 
     // pointerleave - 筆離開
     canvas.addEventListener('pointerleave', (e) => {
       if (this.state.isDrawing) {
         this.state.isDrawing = false;
+        this._saveSnapshot();
       }
     });
 
@@ -411,73 +412,108 @@ const HandwritingCanvas = {
     this.config.undoStack = [];
   },
 
-  /** 計算相似度：極度寬鬆，只用覆蓋率打分 */
+  /** 計算相似度：雙模板比對 — 形狀精準度為主，位置寬容為輔，不扣偏移分 */
   calcSimilarity() {
     if (!this.config.templateChar || !this.elements.drawCanvas || !this.elements.mainCanvas) return 0;
 
     const dpr = window.devicePixelRatio || 1;
     const size = this.config.cellSize;
     const margin = 20;
-
-    // 1. 建立暫時畫布，畫上「超胖模板」
-    const tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width = this.elements.mainCanvas.width;
-    tmpCanvas.height = this.elements.mainCanvas.height;
-    const tctx = tmpCanvas.getContext('2d');
-    tctx.scale(dpr, dpr);
-
     const center = margin + size / 2;
     const ch = this.config.templateChar.char;
-
-    // 三層疊加：正常 + 1.15x + 1.3x，建立極度寬鬆的比對區域
     const baseSize = size * 0.65;
     const fontStr = (s) => `${s}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
-    tctx.fillStyle = '#000000';
-    tctx.textAlign = 'center';
-    tctx.textBaseline = 'middle';
 
-    tctx.font = fontStr(baseSize);
-    tctx.fillText(ch, center, center);
-    tctx.font = fontStr(baseSize * 1.15);
-    tctx.fillText(ch, center, center);
-    tctx.font = fontStr(baseSize * 1.3);
-    tctx.fillText(ch, center, center);
-
-    // 半徑拉到 6px，大量偏移涵蓋各種手寫風格
-    for (let r = 1; r <= 6; r++) {
-      for (let dx = -r; dx <= r; dx++) {
-        for (let dy = -r; dy <= r; dy++) {
-          if (dx === 0 && dy === 0) continue;
-          tctx.font = fontStr(baseSize);
-          tctx.fillText(ch, center + dx, center + dy);
-        }
-      }
-    }
-
-    // 2. 取得手寫層與超胖模板像素
     const drawCtx = this.elements.drawCanvas.getContext('2d');
     const drawData = drawCtx.getImageData(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
-    const tmplData = tctx.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height);
-
-    // 3. 純覆蓋率計算
     const drawPixels = drawData.data;
-    const tmplPixels = tmplData.data;
-    let coveredPixels = 0;
-    let totalTmpl = 0;
+
+    // ---- 精準模板（形狀）：1.0x + 2px 偏移 — 用來判斷筆順形狀是否正確 ----
+    function buildThinTmpl() {
+      const c = document.createElement('canvas');
+      c.width = drawData.width;
+      c.height = drawData.height;
+      const ctx = c.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.fillStyle = '#000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = fontStr(baseSize);
+      ctx.fillText(ch, center, center);
+      // 微膨脹 3px 給一點位置容錯，但仍要求形狀正確
+      for (let r = 1; r <= 3; r++) {
+        for (let dx = -r; dx <= r; dx++) {
+          for (let dy = -r; dy <= r; dy++) {
+            if (dx === 0 && dy === 0) continue;
+            ctx.fillText(ch, center + dx, center + dy);
+          }
+        }
+      }
+      return ctx.getImageData(0, 0, c.width, c.height).data;
+    }
+
+    // ---- 寬鬆模板（位置）：1.3x + 6px 偏移 — 確保偏一點不扣分 ----
+    function buildFatTmpl() {
+      const c = document.createElement('canvas');
+      c.width = drawData.width;
+      c.height = drawData.height;
+      const ctx = c.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.fillStyle = '#000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = fontStr(baseSize);
+      ctx.fillText(ch, center, center);
+      ctx.font = fontStr(baseSize * 1.15);
+      ctx.fillText(ch, center, center);
+      ctx.font = fontStr(baseSize * 1.3);
+      ctx.fillText(ch, center, center);
+      for (let r = 1; r <= 6; r++) {
+        for (let dx = -r; dx <= r; dx++) {
+          for (let dy = -r; dy <= r; dy++) {
+            if (dx === 0 && dy === 0) continue;
+            ctx.font = fontStr(baseSize);
+            ctx.fillText(ch, center + dx, center + dy);
+          }
+        }
+      }
+      return ctx.getImageData(0, 0, c.width, c.height).data;
+    }
+
+    const thinPixels = buildThinTmpl();
+    const fatPixels = buildFatTmpl();
+
+    // 計算兩個覆蓋率
+    let thinCovered = 0, thinTotal = 0;
+    let fatCovered = 0, fatTotal = 0;
 
     for (let i = 3; i < drawPixels.length; i += 4) {
-      if (tmplPixels[i] > 15) {
-        totalTmpl++;
-        if (drawPixels[i] > 15) coveredPixels++;
+      const drawn = drawPixels[i] > 15;
+      if (thinPixels[i] > 15) {
+        thinTotal++;
+        if (drawn) thinCovered++;
+      }
+      if (fatPixels[i] > 15) {
+        fatTotal++;
+        if (drawn) fatCovered++;
       }
     }
 
-    if (totalTmpl === 0) return 0;
+    if (fatTotal === 0) return 0;
 
-    // 覆蓋率直接當分數，不再扣精度
-    const coverage = (coveredPixels / totalTmpl) * 100;
+    // 形狀分 = 精準模板覆蓋率（你寫得像不像這個字）
+    const shapeScore = thinTotal > 0 ? (thinCovered / thinTotal) * 100 : 0;
 
-    // 基本分 30，上限 100
-    return Math.min(100, Math.max(30, Math.round(coverage)));
+    // 位置分 = 寬鬆模板覆蓋率（你寫在對的地方嗎）
+    const positionScore = (fatCovered / fatTotal) * 100;
+
+    // 如果完全寫在別的地方（位置分 = 0），給 0 分
+    if (positionScore === 0) return 0;
+
+    // 綜合：「形狀像不像」為主，「位置對不對」確保不寫到別處
+    // 形狀佔大頭，位置只當門檻（有對到位置就用形狀分，沒對到就低分）
+    const final = shapeScore;
+
+    return Math.min(100, Math.round(final));
   }
 };
