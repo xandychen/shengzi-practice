@@ -513,6 +513,6 @@ const HandwritingCanvas = {
     // 分數 = 精準模板覆蓋率 × 30
     const final = shapeScore * 0.3;
 
-    return Math.min(30, Math.round(final));
+    return Math.min(100, Math.round(final));
   }
 };
