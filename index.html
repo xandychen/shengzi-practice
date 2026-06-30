@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="生字練習">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✏️</text></svg>">
+  <title>國小生字練習 ✏️</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ====== 頁首 ====== -->
+  <header class="app-header">
+    <div class="app-logo">📖 國語生字練習 ✏️</div>
+    <div class="app-subtitle">搭配 Apple Pencil，開心學寫字！</div>
+  </header>
+
+  <!-- ====== 導航 ====== -->
+  <nav class="nav-bar">
+    <button class="nav-tab active" data-page="home">📝 生字練習</button>
+    <button class="nav-tab" data-page="stats">📊 進度</button>
+  </nav>
+
+  <!-- ====== 首頁：選擇課文 ====== -->
+  <div id="home-page" class="page active">
+    <div id="progress-summary" class="progress-summary"></div>
+
+    <!-- 年級選擇 -->
+    <div id="grade-list" class="grade-grid"></div>
+
+    <!-- 學期切換 -->
+    <div id="semester-tabs" class="semester-tabs"></div>
+
+    <!-- 課文列表 -->
+    <div id="lesson-list" class="lesson-list"></div>
+  </div>
+
+  <!-- ====== 練習頁面 ====== -->
+  <div id="practice-page" class="page">
+
+    <!-- 頂部導航 -->
+    <div class="practice-topbar">
+      <button id="btn-back" class="btn-back">⬅ 回課文列表</button>
+      <span style="font-size:0.85rem; color:var(--text-muted);">
+        <span id="current-lesson-title"></span>
+      </span>
+    </div>
+
+    <!-- 模式選擇 -->
+    <div class="mode-buttons">
+      <button class="mode-btn active" data-mode="trace">🖍 描紅</button>
+      <button class="mode-btn" data-mode="copy">✏️ 自己寫</button>
+    </div>
+
+    <!-- 生字橫條 -->
+    <div id="char-strip" class="char-strip"></div>
+
+    <!-- 主練習區 -->
+    <div class="practice-main">
+      <!-- 左：畫布區 -->
+      <div class="canvas-area">
+        <div id="canvas-container"></div>
+        <div class="canvas-hint">💡 用 Apple Pencil 在格子裡寫字吧！</div>
+
+        <!-- 工具按鈕 -->
+        <div class="toolbar">
+          <button id="btn-undo" class="tool-btn btn-undo">↩ 復原</button>
+          <button id="btn-clear" class="tool-btn btn-clear">🗑 清除</button>
+          <button id="btn-confirm" class="tool-btn btn-confirm">✅ 確認</button>
+          <button id="btn-done" class="tool-btn btn-done">👉 下一個</button>
+        </div>
+        <div id="similarity-result" class="similarity-result"></div>
+      </div>
+
+      <!-- 右：生字資訊 -->
+      <div class="char-info-panel">
+        <div id="char-info"></div>
+      </div>
+    </div>
+
+    <!-- 設定列 -->
+    <div class="settings-bar">
+      <div class="setting-group">
+        <span class="setting-label">格線</span>
+        <select id="grid-type" class="setting-select">
+          <option value="mi">米字格</option>
+          <option value="tian">田字格</option>
+          <option value="fang">方格</option>
+          <option value="none">無格線</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">筆色</span>
+        <input type="color" id="pen-color" class="setting-color" value="#333333">
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">筆粗</span>
+        <input type="range" id="pen-width" class="setting-range" min="2" max="16" value="6" step="1">
+        <span id="pen-width-val" class="setting-range-val">6</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 進度頁面 ====== -->
+  <div id="stats-page" class="page">
+    <h2 style="font-family:var(--font-kai); color:var(--primary); margin-bottom:16px; text-align:center;">📊 我的練習進度</h2>
+    <div id="stats-content"></div>
+  </div>
+
+</div>
+
+<!-- ====== Scripts ====== -->
+<script src="js/characters.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
