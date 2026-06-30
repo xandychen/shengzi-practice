@@ -12,11 +12,11 @@ const HandwritingCanvas = {
     pressureEnabled: true,
     mode: 'free',       // 'free' | 'trace' | 'copy'
     grid: 'mi',         // 'mi' | 'tian' | 'fang' | 'none'
-    gridColor: '#e0d4c0',
+    gridColor: '#ece4d6',
     templateColor: '#d0c8c0',
     backgroundColor: '#fffef8',
     templateChar: null, // { char, zhuyin }
-    cellSize: 170,
+    cellSize: 300,
     undoStack: [],
     maxUndo: 30
   },
@@ -102,6 +102,13 @@ const HandwritingCanvas = {
   /** 設定 DPI 自適應 */
   _resize() {
     const dpr = window.devicePixelRatio || 1;
+
+    // 根據 wrapper CSS 寬度動態決定 cellSize（mobile 小一點）
+    if (this.elements.wrapper) {
+      const wrapperWidth = parseFloat(getComputedStyle(this.elements.wrapper).width);
+      this.config.cellSize = Math.round(wrapperWidth - 40);
+    }
+
     const size = this.config.cellSize * dpr;
     const margin = 20 * dpr;
     const fullSize = size + margin * 2;
@@ -145,9 +152,9 @@ const HandwritingCanvas = {
     ctx.fillStyle = this.config.backgroundColor;
     ctx.fillRect(0, 0, size + margin * 2, size + margin * 2);
 
-    // 練習格外框（圓角）
-    ctx.strokeStyle = '#c8b898';
-    ctx.lineWidth = 2;
+    // 練習區外框（極淺，不干擾書寫）
+    ctx.strokeStyle = 'rgba(180, 170, 150, 0.25)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.roundRect(margin, margin, size, size, 8);
     ctx.stroke();
@@ -164,8 +171,8 @@ const HandwritingCanvas = {
   /** 畫格線 */
   _drawGrid(ctx, margin, size, center) {
     ctx.strokeStyle = this.config.gridColor;
-    ctx.lineWidth = 0.8;
-    ctx.setLineDash([4, 6]);
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([4, 8]);
 
     if (this.config.grid === 'mi') {
       // 米字格：十字 + 叉字
@@ -197,7 +204,7 @@ const HandwritingCanvas = {
   /** 畫模板字（描紅） */
   _drawTemplate(ctx, center, size) {
     const char = this.config.templateChar.char;
-    const fontSize = size * 0.55;
+    const fontSize = size * 0.65;
 
     ctx.save();
     ctx.fillStyle = this.config.templateColor;
@@ -208,7 +215,7 @@ const HandwritingCanvas = {
 
     // 如果模式是「描紅」，加深一點讓小朋友看得清楚
     if (this.config.mode === 'trace') {
-      ctx.fillStyle = 'rgba(180, 170, 155, 0.4)';
+      ctx.fillStyle = 'rgba(180, 170, 155, 0.55)';
       ctx.fillText(char, center, center);
     }
     ctx.restore();
@@ -403,7 +410,7 @@ const HandwritingCanvas = {
     this.config.undoStack = [];
   },
 
-  /** 計算相似度：擴張模板比對，對小朋友手寫更友善 */
+  /** 計算相似度：擴張模板比對，對小朋友手寫超友善 */
   calcSimilarity() {
     if (!this.config.templateChar || !this.elements.drawCanvas || !this.elements.mainCanvas) return 0;
 
@@ -419,19 +426,26 @@ const HandwritingCanvas = {
     tctx.scale(dpr, dpr);
 
     const center = margin + size / 2;
-    const fontSize = size * 0.55;
+    const ch = this.config.templateChar.char;
+
+    // 先畫正常大小 + 略大字體（疊加效果比逐點平移更高效）
+    const baseSize = size * 0.65;
     tctx.fillStyle = '#000000';
-    tctx.font = `${fontSize}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
+    tctx.font = `${baseSize}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
     tctx.textAlign = 'center';
     tctx.textBaseline = 'middle';
-
-    // 擴張模板：畫 17 次（中心 + 半徑 3px 的所有方向），建立較寬的「目標區域」
-    const ch = this.config.templateChar.char;
     tctx.fillText(ch, center, center);
-    for (let r = 1; r <= 3; r++) {
+
+    // 略大 12% 的字體 — 一次性涵蓋大部分偏移
+    tctx.font = `${baseSize * 1.12}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
+    tctx.fillText(ch, center, center);
+
+    // 擴張模板：半徑拉到 5px，涵蓋正常書寫偏移範圍
+    for (let r = 1; r <= 5; r++) {
       for (let dx = -r; dx <= r; dx++) {
         for (let dy = -r; dy <= r; dy++) {
           if (dx === 0 && dy === 0) continue;
+          tctx.font = `${baseSize}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
           tctx.fillText(ch, center + dx, center + dy);
         }
       }
@@ -462,11 +476,12 @@ const HandwritingCanvas = {
 
     if (totalTmpl === 0 || drawnPixels === 0) return 0;
 
-    // 綜合評分：覆蓋率佔 85%，避免亂畫（手寫不超出模板太多）佔 15%
+    // 綜合評分：覆蓋率 90%，精度 10%，且精度不低於 0.5 避免過度懲罰
     const coverage = (coveredPixels / totalTmpl) * 100;
-    const precision = Math.min(1, totalTmpl / Math.max(drawnPixels, 1));
-    const score = coverage * 0.85 + precision * 15;
+    const precision = Math.max(0.5, Math.min(1, totalTmpl / Math.max(drawnPixels, 1)));
+    const score = coverage * 0.9 + precision * 10;
 
-    return Math.min(100, Math.round(score));
+    // 至少給基本分 25（小朋友有寫就值得鼓勵）
+    return Math.min(100, Math.max(25, Math.round(score)));
   }
 };

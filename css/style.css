@@ -408,8 +408,8 @@ body {
 .canvas-wrapper {
   position: relative;
   display: inline-block;
-  width: 210px;
-  height: 210px;
+  width: 340px;
+  height: 340px;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
@@ -939,6 +939,7 @@ body {
   .settings-bar { flex-direction: column; gap: 8px; }
   .mode-btn { font-size: 0.82rem; padding: 8px 12px; }
   .tool-btn { padding: 8px 14px; font-size: 0.82rem; }
+  .canvas-wrapper { width: 280px; height: 280px; }
 }
 
 /* iPad specific */
