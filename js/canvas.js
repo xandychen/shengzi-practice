@@ -223,9 +223,10 @@ const HandwritingCanvas = {
 
   /** 綁定事件 */
   _bindEvents(canvas) {
-    // pointerdown - 開始畫
+    // pointerdown - 開始畫（僅觸控筆，手指不理）
     canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      if (e.pointerType !== 'pen') return;
       this.state.isDrawing = true;
       this.state.pointerType = e.pointerType;
       this.state.pressure = e.pressure || 0.5;
@@ -410,7 +411,7 @@ const HandwritingCanvas = {
     this.config.undoStack = [];
   },
 
-  /** 計算相似度：擴張模板比對，對小朋友手寫超友善 */
+  /** 計算相似度：極度寬鬆，只用覆蓋率打分 */
   calcSimilarity() {
     if (!this.config.templateChar || !this.elements.drawCanvas || !this.elements.mainCanvas) return 0;
 
@@ -418,7 +419,7 @@ const HandwritingCanvas = {
     const size = this.config.cellSize;
     const margin = 20;
 
-    // 1. 建立暫時畫布，畫上「胖模板」
+    // 1. 建立暫時畫布，畫上「超胖模板」
     const tmpCanvas = document.createElement('canvas');
     tmpCanvas.width = this.elements.mainCanvas.width;
     tmpCanvas.height = this.elements.mainCanvas.height;
@@ -428,60 +429,55 @@ const HandwritingCanvas = {
     const center = margin + size / 2;
     const ch = this.config.templateChar.char;
 
-    // 先畫正常大小 + 略大字體（疊加效果比逐點平移更高效）
+    // 三層疊加：正常 + 1.15x + 1.3x，建立極度寬鬆的比對區域
     const baseSize = size * 0.65;
+    const fontStr = (s) => `${s}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
     tctx.fillStyle = '#000000';
-    tctx.font = `${baseSize}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
     tctx.textAlign = 'center';
     tctx.textBaseline = 'middle';
+
+    tctx.font = fontStr(baseSize);
+    tctx.fillText(ch, center, center);
+    tctx.font = fontStr(baseSize * 1.15);
+    tctx.fillText(ch, center, center);
+    tctx.font = fontStr(baseSize * 1.3);
     tctx.fillText(ch, center, center);
 
-    // 略大 12% 的字體 — 一次性涵蓋大部分偏移
-    tctx.font = `${baseSize * 1.12}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
-    tctx.fillText(ch, center, center);
-
-    // 擴張模板：半徑拉到 5px，涵蓋正常書寫偏移範圍
-    for (let r = 1; r <= 5; r++) {
+    // 半徑拉到 6px，大量偏移涵蓋各種手寫風格
+    for (let r = 1; r <= 6; r++) {
       for (let dx = -r; dx <= r; dx++) {
         for (let dy = -r; dy <= r; dy++) {
           if (dx === 0 && dy === 0) continue;
-          tctx.font = `${baseSize}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
+          tctx.font = fontStr(baseSize);
           tctx.fillText(ch, center + dx, center + dy);
         }
       }
     }
 
-    // 2. 取得手寫層與胖模板的像素
+    // 2. 取得手寫層與超胖模板像素
     const drawCtx = this.elements.drawCanvas.getContext('2d');
     const drawData = drawCtx.getImageData(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
     const tmplData = tctx.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height);
 
-    // 3. 計算覆蓋率
+    // 3. 純覆蓋率計算
     const drawPixels = drawData.data;
     const tmplPixels = tmplData.data;
-    let coveredPixels = 0;  // 模板中被寫到的
-    let drawnPixels = 0;   // 手寫總像素
-    let totalTmpl = 0;      // 胖模板總像素
+    let coveredPixels = 0;
+    let totalTmpl = 0;
 
     for (let i = 3; i < drawPixels.length; i += 4) {
-      const inTemplate = tmplPixels[i] > 15;   // 在胖模板內
-      const isDrawn = drawPixels[i] > 15;       // 有手寫筆跡
-
-      if (inTemplate) {
+      if (tmplPixels[i] > 15) {
         totalTmpl++;
-        if (isDrawn) coveredPixels++;
+        if (drawPixels[i] > 15) coveredPixels++;
       }
-      if (isDrawn) drawnPixels++;
     }
 
-    if (totalTmpl === 0 || drawnPixels === 0) return 0;
+    if (totalTmpl === 0) return 0;
 
-    // 綜合評分：覆蓋率 90%，精度 10%，且精度不低於 0.5 避免過度懲罰
+    // 覆蓋率直接當分數，不再扣精度
     const coverage = (coveredPixels / totalTmpl) * 100;
-    const precision = Math.max(0.5, Math.min(1, totalTmpl / Math.max(drawnPixels, 1)));
-    const score = coverage * 0.9 + precision * 10;
 
-    // 至少給基本分 25（小朋友有寫就值得鼓勵）
-    return Math.min(100, Math.max(25, Math.round(score)));
+    // 基本分 30，上限 100
+    return Math.min(100, Math.max(30, Math.round(coverage)));
   }
 };
