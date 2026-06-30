@@ -26,7 +26,8 @@ const HandwritingCanvas = {
     container: null,
     mainCanvas: null,    // 底層：格線 + 模板字
     drawCanvas: null,    // 上層：手寫
-    wrapper: null
+    wrapper: null,
+    snapshotCanvas: null // 快取畫布（用於快速 undo，避免 toDataURL 卡頓）
   },
 
   /** 繪圖狀態 */
@@ -70,6 +71,9 @@ const HandwritingCanvas = {
     drawCanvas.className = 'hw-draw-canvas';
     drawCanvas.style.cssText = 'display: block; position: absolute; top: 0; left: 0; z-index: 2;';
 
+    // 快照 canvas（隱藏，用於快速 undo，不阻塞主線程）
+    const snapshotCanvas = document.createElement('canvas');
+
     wrapper.appendChild(mainCanvas);
     wrapper.appendChild(drawCanvas);
     container.appendChild(wrapper);
@@ -77,6 +81,7 @@ const HandwritingCanvas = {
     this.elements.mainCanvas = mainCanvas;
     this.elements.drawCanvas = drawCanvas;
     this.elements.wrapper = wrapper;
+    this.elements.snapshotCanvas = snapshotCanvas;
 
     // 綁定事件
     this._bindEvents(drawCanvas);
@@ -101,16 +106,24 @@ const HandwritingCanvas = {
     const margin = 20 * dpr;
     const fullSize = size + margin * 2;
 
-    [this.elements.mainCanvas, this.elements.drawCanvas].forEach(canvas => {
+    [this.elements.mainCanvas, this.elements.drawCanvas, this.elements.snapshotCanvas].forEach(canvas => {
       canvas.width = fullSize;
       canvas.height = fullSize;
-      canvas.style.width = (this.config.cellSize + 40) + 'px';
-      canvas.style.height = (this.config.cellSize + 40) + 'px';
     });
 
-    // 重置 transform 再設定 DPI（避免每次 _resize 疊加 scale）
-    const ctx = this.elements.mainCanvas.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // CSS 尺寸（邏輯像素）
+    this.elements.mainCanvas.style.width = (this.config.cellSize + 40) + 'px';
+    this.elements.mainCanvas.style.height = (this.config.cellSize + 40) + 'px';
+    this.elements.drawCanvas.style.width = (this.config.cellSize + 40) + 'px';
+    this.elements.drawCanvas.style.height = (this.config.cellSize + 40) + 'px';
+
+    // 底層：一次性設定 DPI transform
+    const mainCtx = this.elements.mainCanvas.getContext('2d');
+    mainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // 手寫層：一次性設定 DPI transform，之後 _drawLine 不再改
+    const drawCtx = this.elements.drawCanvas.getContext('2d');
+    drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   },
 
   /** 渲染背景（格線 + 模板字） */
@@ -272,22 +285,17 @@ const HandwritingCanvas = {
     };
   },
 
-  /** 畫一條線段 */
+  /** 畫一條線段 — DPR transform 已在 _resize 設定，不再每幀重設 */
   _drawLine(fromX, fromY, toX, toY, pressure) {
     const ctx = this.elements.drawCanvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
     const baseWidth = this.config.penWidth;
 
     let lineWidth = baseWidth;
     if (this.config.pressureEnabled) {
-      // 壓感圍繞用戶設定的筆寬：輕→0.4倍，重→1.4倍
       const p = pressure !== undefined ? pressure : 0.5;
       lineWidth = baseWidth * (0.4 + p * 1.0);
       lineWidth = Math.max(1, Math.min(baseWidth * 1.5, lineWidth));
     }
-
-    ctx.save();
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.strokeStyle = this.config.penColor;
     ctx.lineWidth = lineWidth;
@@ -298,15 +306,19 @@ const HandwritingCanvas = {
     ctx.moveTo(fromX, fromY);
     ctx.lineTo(toX, toY);
     ctx.stroke();
-
-    ctx.restore();
   },
 
-  /** 儲存快照（用於 undo） */
+  /** 儲存快照（用於 undo）— 使用 getImageData 取代 toDataURL，不編碼 PNG 直接存像素 */
   _saveSnapshot() {
     if (!this.elements.drawCanvas) return;
-    const snapshot = this.elements.drawCanvas.toDataURL();
-    this.config.undoStack.push(snapshot);
+    const ctx = this.elements.drawCanvas.getContext('2d');
+    // 先重設為 identity 才能拿到原始像素
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const data = ctx.getImageData(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
+    // 恢復 DPR transform
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.config.undoStack.push(data);
     if (this.config.undoStack.length > this.config.maxUndo) {
       this.config.undoStack.shift();
     }
@@ -317,16 +329,12 @@ const HandwritingCanvas = {
   /** 復原上一步 */
   undo() {
     if (this.config.undoStack.length === 0) return;
-    const snapshot = this.config.undoStack.pop();
-    const img = new Image();
-    img.onload = () => {
-      const ctx = this.elements.drawCanvas.getContext('2d');
-      const dpr = window.devicePixelRatio || 1;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
-    img.src = snapshot;
+    const data = this.config.undoStack.pop();
+    const ctx = this.elements.drawCanvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.putImageData(data, 0, 0);
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   },
 
   /** 清除手寫 */
@@ -334,11 +342,10 @@ const HandwritingCanvas = {
     this._saveSnapshot();
     if (!this.elements.drawCanvas) return;
     const ctx = this.elements.drawCanvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
-    ctx.restore();
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   },
 
   /** 設定新的練習字 */
@@ -396,16 +403,15 @@ const HandwritingCanvas = {
     this.config.undoStack = [];
   },
 
-  /** 計算相似度：比對用戶手寫與範字的像素重疊率 */
+  /** 計算相似度：擴張模板比對，對小朋友手寫更友善 */
   calcSimilarity() {
     if (!this.config.templateChar || !this.elements.drawCanvas || !this.elements.mainCanvas) return 0;
 
     const dpr = window.devicePixelRatio || 1;
     const size = this.config.cellSize;
     const margin = 20;
-    const fullSize = this.config.cellSize + margin * 2;
 
-    // 1. 建立暫時畫布，畫上範字
+    // 1. 建立暫時畫布，畫上「胖模板」
     const tmpCanvas = document.createElement('canvas');
     tmpCanvas.width = this.elements.mainCanvas.width;
     tmpCanvas.height = this.elements.mainCanvas.height;
@@ -418,31 +424,49 @@ const HandwritingCanvas = {
     tctx.font = `${fontSize}px "STKaiti", "KaiTi", "楷体", "DFKai-SB", "BiauKai", "TW-Kai", serif`;
     tctx.textAlign = 'center';
     tctx.textBaseline = 'middle';
-    tctx.fillText(this.config.templateChar.char, center, center);
 
-    // 2. 取得手寫層與範字層的像素
-    const drawCtx = this.elements.drawCanvas.getContext('2d');
-    const drawData = drawCtx.getImageData(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
-    const tmplData = tctx.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height);
-
-    // 3. 計算像素重疊率
-    const drawPixels = drawData.data;
-    const tmplPixels = tmplData.data;
-    let overlapCount = 0;
-    let totalTmpl = 0;
-
-    for (let i = 3; i < drawPixels.length; i += 4) {
-      // 範字像素（非白）
-      if (tmplPixels[i] > 30) {
-        totalTmpl++;
-        // 手寫像素（非白）與範字重疊
-        if (drawPixels[i] > 20) {
-          overlapCount++;
+    // 擴張模板：畫 17 次（中心 + 半徑 3px 的所有方向），建立較寬的「目標區域」
+    const ch = this.config.templateChar.char;
+    tctx.fillText(ch, center, center);
+    for (let r = 1; r <= 3; r++) {
+      for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+          if (dx === 0 && dy === 0) continue;
+          tctx.fillText(ch, center + dx, center + dy);
         }
       }
     }
 
-    if (totalTmpl === 0) return 0;
-    return Math.min(100, Math.round((overlapCount / totalTmpl) * 100));
+    // 2. 取得手寫層與胖模板的像素
+    const drawCtx = this.elements.drawCanvas.getContext('2d');
+    const drawData = drawCtx.getImageData(0, 0, this.elements.drawCanvas.width, this.elements.drawCanvas.height);
+    const tmplData = tctx.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height);
+
+    // 3. 計算覆蓋率
+    const drawPixels = drawData.data;
+    const tmplPixels = tmplData.data;
+    let coveredPixels = 0;  // 模板中被寫到的
+    let drawnPixels = 0;   // 手寫總像素
+    let totalTmpl = 0;      // 胖模板總像素
+
+    for (let i = 3; i < drawPixels.length; i += 4) {
+      const inTemplate = tmplPixels[i] > 15;   // 在胖模板內
+      const isDrawn = drawPixels[i] > 15;       // 有手寫筆跡
+
+      if (inTemplate) {
+        totalTmpl++;
+        if (isDrawn) coveredPixels++;
+      }
+      if (isDrawn) drawnPixels++;
+    }
+
+    if (totalTmpl === 0 || drawnPixels === 0) return 0;
+
+    // 綜合評分：覆蓋率佔 85%，避免亂畫（手寫不超出模板太多）佔 15%
+    const coverage = (coveredPixels / totalTmpl) * 100;
+    const precision = Math.min(1, totalTmpl / Math.max(drawnPixels, 1));
+    const score = coverage * 0.85 + precision * 15;
+
+    return Math.min(100, Math.round(score));
   }
 };
